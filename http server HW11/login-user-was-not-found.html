@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body style="display: flex; background-color: grey;" >
+    <main class="container" style="display: flex; width: 80%; height: 10%; background-image: url('/sleeping-lion.jpg'); justify-content: center; border: 1px; border-style: solid; background-color: aqua;">
+        <form action="/login" method="post" style="background-color: rgba(245, 245, 241, 0.9); margin: 5px; padding: 10px;">
+            <label for="username">Username:
+                <input name="username" type="text">
+            </label><br>
+            <label for="password">Password:
+                <input name="password" type="text">
+            </label>
+            <label for="wrongpass" style="color: red;">user was not found</label>
+            <input type="submit" name="action" value="Login">
+            <input type="submit" name="action" value="Register">
+        </form>
+    </main>
+</body>
+</html>

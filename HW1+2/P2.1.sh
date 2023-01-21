@@ -1,0 +1,21 @@
+mkdir dirA
+cd dirA
+mkdir d1
+mkdir dir1
+mkdir dir2
+cd d1
+touch F5
+mkdir dir1
+cd dir1
+touch F4
+cd ..
+cd ..
+cd dir1
+touch F1
+cd ..
+cd dir2
+touch F2
+touch F3
+cd ..
+cd ..
+
