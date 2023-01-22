@@ -25,9 +25,9 @@ void route(int clientfd)
         // write(clientfd, buffer, file_size);
     }
 
-    ROUTE_GET("/sleeping-lionslirdhvlkjrdh.jpg")
+    ROUTE_GET("/sleeping-lions.jpg")
     {
-        FILE* img = fopen("sleeping-lion.jpg", "r");
+        FILE* img = fopen("lionsleeping.png", "rb");
         fseek(img, 0, SEEK_END);
         long file_size = ftell(img);
         rewind(img);
@@ -35,11 +35,14 @@ void route(int clientfd)
         fread(buffer, sizeof(char), file_size, img);
         printf("HTTP/1.1 200 OK\r\n");
         printf('Content-Length: %ld\r\n', file_size);
-        printf('Content-Type: image/jpeg\r\n\r\n');
+        printf('Content-Type: image/png\r\n\r\n');
+        printf('Access-Control-Allow-Origin: *\r\n\r\n');
+
         // printf("%d", buffer);
-        size_t bytes_read;
-        while ((bytes_read = fread(buffer, 1, sizeof(buffer), img)) > 0) {
-        fwrite(buffer, 1, bytes_read, clientfd);}
+        // size_t bytes_read;
+        // while ((bytes_read = fread(buffer, 1, sizeof(buffer), img)) > 0) {
+        // fwrite(buffer, 1, bytes_read, clientfd);}
+        fwrite(buffer, 1 ,file_size,clientfd);
         fclose(img);
     }
 
@@ -96,7 +99,7 @@ void route(int clientfd)
                         /*User succsesfuly logged in*/
                         flag++;
                         printf("HTTP/1.1 302 Found\r\n");
-                        printf("Location: /homepage");
+                        printf("Location: /homepage?username=%s",saved_username);
                         break;
                     }else{
                         flag++;
@@ -134,15 +137,84 @@ void route(int clientfd)
   
     ROUTE_GET("/homepage")
     {
-        FILE* file = fopen("homepage.html", "r");
-        fseek(file, 0, SEEK_END);
-        long file_size = ftell(file);
-        rewind(file);
-        char* buffer = (char*) malloc(file_size * sizeof(char));
-        fread(buffer, sizeof(char), file_size, file);
+        // FILE* file = fopen("homepage.html", "r");
+        // fseek(file, 0, SEEK_END);
+        // long file_size = ftell(file);
+        // rewind(file);
+        // char* buffer = (char*) malloc(file_size * sizeof(char));
+        // fread(buffer, sizeof(char), file_size, file);
         printf("HTTP/1.1 200 OK\r\n\r\n");
-        printf("%s", buffer);
-        fclose(file);
+        printf("<!DOCTYPE html>\n");
+        printf("<html lang='en'>\n");
+        printf("<head>\n");
+        printf("    <meta charset='UTF-8'>\n");
+        printf("    <meta http-equiv='X-UA-Compatible' content='IE=edge'>\n");
+        printf("    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n");
+        printf("    <title>Dashboard</title>\n");
+        printf("</head>\n");
+        printf("<body style='display: flex; justify-content: center; flex-flow: wrap; background-color:gray;'>\n");
+        printf("    <a style='display: flex; justify-content: center; padding: 15px; width: 100%%;' href='/'>Go back to log in page</a>\n");
+        char line[100];
+        char *sentence = NULL;
+        char *username = NULL;
+        char *token;
+        char loggedname[150];
+        FILE *read = fopen("data.txt", "r");
+        sscanf(qs, "username=%s\n",loggedname);
+        while(fgets(line, 300, read) != NULL){
+            token = strtok(line, ",");
+            username = token;
+            token = strtok(NULL, "\n");
+            sentence = token;
+            // fprintf(stderr,"\n\n\n\n\n\nusername: %s, sentance: %s\n\n\n\n\n\n",username, sentence);
+            if(strcmp(username,loggedname) == 0){
+                printf("<div style='display: flex; margin: 3px; padding:10px; width: 100%%; justify-content: center; border-style: solid; border-width: 1px;'>%s</div>\n",sentence);
+            }
+        }
+        printf("    <form id='form' action='/comment' method='post'  >\n"); 
+        printf("        <label for='comment'>Enter a new comment</label>\n");
+        printf("        <input maxlength='125' type='text' name='comm' style='background-color: lightgrey;' >\n");
+        printf("        <input type='hidden' name='username' value='%s'>\n", loggedname);
+        printf("        <input type='submit'name='submit' value='enter'>\n");
+        printf("   </form>\n");
+        printf("</body>\n");
+        printf("<script>\n");
+        printf("const form = document.getElementsById('form');\n");
+        printf("form.addEventListener(\"submit\", function(event) {\n");
+        printf("    event.preventDefault();\n");
+        printf("    const formData = new FormData(form);\n");
+        printf("    fetch(\"/comment\", { method: \"POST\", body: formData });\n");
+        printf("});\n");
+        printf("</script>\n");
+        printf("</html>");
+        fclose(read);
     }
+    
+    ROUTE_POST("/comment")
+    {
+        char *username;
+        char *comment;
+        char* token;
+        fprintf(stderr,"payload: %s",payload);
+        FILE *data = fopen("data.txt","a");
+        token = strtok(payload, "&");
+        while (token != NULL) {
+            if (strncmp(token, "comm", 4) == 0) {
+                comment = strchr(token, '=');
+                comment++;
+            }
+            else if (strncmp(token, "username", 8) == 0) {
+                username = strchr(token, '=');
+                username++;
+            }
+            
+            token = strtok(NULL, "&");
+        }
+        fprintf(stderr,"\n\n\n\n\nusername: %s,comment: %s\n\n\n\n\n",username,comment);
+        fprintf(data,"%s,%s\n",username,comment);
+        fclose(data);
+        printf("HTTP/1.1 302 Found\r\n");
+        printf("Location: /homepage?username=%s",username);    }
+
     ROUTE_END()
 }

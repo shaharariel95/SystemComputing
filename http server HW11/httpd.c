@@ -137,7 +137,7 @@ void respond(int n)
     else    // message received
     {
         buf[rcvd] = '\0';
-        printf("buf: %s\n\n\n", buf);
+        // printf("buf: %s\n\n\n", buf);
 
         method = strtok(buf,  " \t\r\n");
         uri    = strtok(NULL, " \t");
